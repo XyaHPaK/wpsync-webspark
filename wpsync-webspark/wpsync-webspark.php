@@ -1,7 +1,7 @@
 <?php
 namespace Webspark;
 /**
- * Plugin Name: Wpsync webspark
+ * Plugin Name: wpsync-webspark
  * Description: Custom plugin to update product base via webspark API
  * Version: 1.0
  * Author: XyaHPaK
