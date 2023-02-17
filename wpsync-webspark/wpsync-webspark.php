@@ -27,11 +27,11 @@ register_activation_hook(__FILE__,  function() {
     }
     $wpdb->query('COMMIT');
     if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-        add_action( 'cron_update_products', 'products_update' );
-        register_deactivation_hook( __FILE__, 'update_products_deactivate' );
         wp_schedule_single_event( time() + 120, 'cron_update_products' );
     }
 });
+add_action( 'cron_update_products', 'products_update' );
+register_deactivation_hook( __FILE__, 'update_products_deactivate' );
 require_once(ABSPATH . 'wp-admin/includes/media.php');
 require_once(ABSPATH . 'wp-admin/includes/file.php');
 require_once(ABSPATH . 'wp-admin/includes/image.php');
