@@ -89,8 +89,6 @@ class Main {
                         '_stock' => $product->in_stock,
                     ],
                 ] );
-                $thumb_id = media_sideload_image($product->picture . '?ext=.jpg', $post_id, null, 'id');
-                set_post_thumbnail($post_id, $thumb_id);
             } else {
                 $post_id = wp_insert_post( [
                     'post_author'  => get_current_user_id(),
