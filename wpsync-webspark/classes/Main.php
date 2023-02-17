@@ -58,23 +58,19 @@ class Main {
             WHERE p.post_status='publish' and pm.meta_key='_sku'
         ");
         $ex = [];
-        $for_delete = [];
         foreach ( $existing as $e ) {
             $ex[$e->meta_value] = $e->post_id;
-            if ( array_search($e->meta_value,array_column($products, 'sku')) === false ) {
-                $for_delete[] = $e->post_id;
-            }
         }
-
+        if (! wp_next_scheduled ( 'cron_update_products' )) {
+            wp_schedule_event( time(), 'hourly', 'cron_update_products' );
+        }
         foreach ($products as $p) {
             if ( (time() - $_SERVER['REQUEST_TIME']) + 5 >= ini_get('max_execution_time') ) {
                 wp_schedule_single_event( time() + 60, 'cron_update_products' );
                 break;
             }
-            if (! wp_next_scheduled ( 'cron_update_products' )) {
-                wp_schedule_event( time(), 'hourly', 'cron_update_products' );
-            }
             $product = unserialize($p->data);
+
             if ( isset($ex[$product->sku]) ) {
                 $post_id = wp_update_post( [
                     'ID' => $ex[$product->sku],
@@ -89,6 +85,7 @@ class Main {
                         '_stock' => $product->in_stock,
                     ],
                 ] );
+                unset($ex[$product->sku]);
             } else {
                 $post_id = wp_insert_post( [
                     'post_author'  => get_current_user_id(),
@@ -107,7 +104,7 @@ class Main {
             }
             $wpdb->update('temp_products', ['processed' => true], ['id' => $p->id]);
         }
-        foreach ($for_delete as $p_id) {
+        foreach (array_values($ex) as $p_id) {
             wp_delete_post($p_id, true);
         }
     }
